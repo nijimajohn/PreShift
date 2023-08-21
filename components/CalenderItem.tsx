@@ -2,91 +2,103 @@
 
 import React from "react";
 
-import { Calendar, DateFormatFunction, DateRangeFormatFunction, dateFnsLocalizer, momentLocalizer } from "react-big-calendar";
-import format from "date-fns/format";
-import ja from "date-fns/locale/ja";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
+import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
-import DatePicker from "react-datepicker";
-import { Button, TextField } from "@mui/material";
-import moment, { locales } from 'moment';
-import 'moment/locale/ja';
-
+import { Button, Menu, MenuItem, Modal, TextField } from "@mui/material";
+import moment from "moment";
+import "moment/locale/ja";
 
 interface AllEvents {
   title: string;
-  allDay: boolean;
   start: Date;
   end: Date;
 }
 
-type Formats = {
-  dateFormat: string;
-  dayFormat: DateFormatFunction;
-  monthHeaderFormat: DateFormatFunction;
-  dayHeaderFormat: DateFormatFunction;
-  dayRangeHeaderFormat: DateRangeFormatFunction;
-};
-
 const localizer = momentLocalizer(moment);
 
-
-
-
 const formats: any = {
-  dateFormat: 'D',
+  dateFormat: "D",
   dayFormat: (date: Date, culture: string, localizer: any) =>
-    localizer.format(date, 'D(ddd)'),
+    localizer.format(date, "D(ddd)"),
   monthHeaderFormat: (date: Date, culture: string, localizer: any) =>
-    localizer.format(date, 'YYYY年M月'),
+    localizer.format(date, "YYYY年M月"),
   dayHeaderFormat: (date: Date, culture: string, localizer: any) =>
-    localizer.format(date, 'M月D日(ddd)'),
-  dayRangeHeaderFormat: ({start, end},culture: string, localizer: any) =>
-    `${localizer.format(start, 'YYYY年M月')} - ${localizer.format(end, 'YYYY年M月')}`,
-}
-
-const events = [
-  {
-    title: "MTG",
-    allDay: true,
-    start: new Date(2023, 7, 18),
-    end: new Date(2023, 7, 19),
-  },
-];
+    localizer.format(date, "M月D日(ddd)"),
+  dayRangeHeaderFormat: (
+    { start, end }: { start: Date; end: Date },
+    culture: string,
+    localizer: any
+  ) =>
+    `${localizer.format(start, "YYYY年M月")} - ${localizer.format(
+      end,
+      "YYYY年M月"
+    )}`,
+};
 
 const CalenderItem = () => {
-  const [date, setDate] = useState("");
-  const [shiftDate, setShiftDate] = useState("");
-  const [ allEvents, setAllEvents ] = useState(events)
+  const [events, setEvents] = useState<AllEvents[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newEvent, setNewEvent] = useState<AllEvents>({
+    title: "",
+    start: new Date(),
+    end: new Date(),
+  });
 
-  console.log(date);
-
-  const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setDate(e.target.value);
+  const handleSaveEvent = () => {
+    const isValidEvent = newEvent.title && newEvent.start && newEvent.end;
+    if (isValidEvent) {
+      setEvents([...events, newEvent]);
+      setShowAddForm(false);
+      setNewEvent({
+        title: "",
+        start: new Date(),
+        end: new Date(),
+      });
+    }
   };
-
- 
 
   return (
     <div className="App">
-      <form>
-        <TextField type="date" value={date} onChange={onChangeDate} />
-        <Button variant="outlined"  >提出</Button>
-      </form>
-  
       <Calendar
         localizer={localizer}
-        events={allEvents}
+        events={events}
         startAccessor="start"
         endAccessor="end"
-        showMultiDayTimes
-        views={['month','week', 'day']}
+        selectable
+        views={["month", "week", "day"]}
         formats={formats}
         style={{ height: 500, margin: "50px" }}
       />
+      <Button onClick={() => setShowAddForm(true)}>ADD EVENT</Button>
+      <Modal open={showAddForm} onClose={() => setShowAddForm(false)}>
+        <div>
+          <TextField
+            label="タイトル"
+            value={newEvent.title}
+            onChange={(e) =>
+              setNewEvent({ ...newEvent, title: e.target.value })
+            }
+          />
+          <TextField
+            label="開始日"
+            type="datetime-local"
+            value={moment(newEvent.start).format("YYYY-MM-DDTHH:mm")}
+            onChange={(e) =>
+              setNewEvent({ ...newEvent, start: new Date(e.target.value) })
+            }
+          />
+          <TextField
+            label="終了日"
+            type="datetime-local"
+            value={moment(newEvent.end).format("YYYY-MM-DDTHH:mm")}
+            onChange={(e) =>
+              setNewEvent({ ...newEvent, end: new Date(e.target.value) })
+            }
+          />
+          <Button onClick={handleSaveEvent}>提出</Button>
+        </div>
+      </Modal>
     </div>
   );
 };
