@@ -5,11 +5,12 @@ import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
-import { Button, Menu, MenuItem, Modal, TextField } from "@mui/material";
+import { Button, Dialog, TextField } from "@mui/material";
 import moment from "moment";
 import "moment/locale/ja";
 
 interface AllEvents {
+  id?: number;
   title: string;
   start: Date;
   end: Date;
@@ -39,11 +40,17 @@ const formats: any = {
 const CalenderItem = () => {
   const [events, setEvents] = useState<AllEvents[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  
   const [newEvent, setNewEvent] = useState<AllEvents>({
     title: "",
     start: new Date(),
     end: new Date(),
   });
+
+  const handleDeleteEvent = (eventToDelete: AllEvents) => {
+    const updatedEvents = events.filter((event) => event !== eventToDelete);
+    setEvents(updatedEvents);
+  };
 
   const handleSaveEvent = () => {
     const isValidEvent = newEvent.title && newEvent.start && newEvent.end;
@@ -70,8 +77,10 @@ const CalenderItem = () => {
         formats={formats}
         style={{ height: 500, margin: "50px" }}
       />
-      <Button onClick={() => setShowAddForm(true)}>ADD EVENT</Button>
-      <Modal open={showAddForm} onClose={() => setShowAddForm(false)}>
+      <Button variant="outlined" onClick={() => setShowAddForm(true)}>
+        シフトを提出画面を開く
+      </Button>
+      <Dialog open={showAddForm} onClose={() => setShowAddForm(false)}>
         <div>
           <TextField
             label="タイトル"
@@ -79,8 +88,11 @@ const CalenderItem = () => {
             onChange={(e) =>
               setNewEvent({ ...newEvent, title: e.target.value })
             }
+            sx={{ margin: "25px" }}
           />
+          <br />
           <TextField
+            sx={{ margin: "25px" }}
             label="開始日"
             type="datetime-local"
             value={moment(newEvent.start).format("YYYY-MM-DDTHH:mm")}
@@ -88,7 +100,9 @@ const CalenderItem = () => {
               setNewEvent({ ...newEvent, start: new Date(e.target.value) })
             }
           />
+          <br />
           <TextField
+            sx={{ margin: "25px" }}
             label="終了日"
             type="datetime-local"
             value={moment(newEvent.end).format("YYYY-MM-DDTHH:mm")}
@@ -96,9 +110,27 @@ const CalenderItem = () => {
               setNewEvent({ ...newEvent, end: new Date(e.target.value) })
             }
           />
-          <Button onClick={handleSaveEvent}>提出</Button>
+          <br />
+          <Button
+            onClick={handleSaveEvent}
+            variant="outlined"
+            sx={{ margin: "25px" }}
+          >
+            提出
+          </Button>
         </div>
-      </Modal>
+      </Dialog>
+      <ul>
+        {events.map((event) => (
+          <>
+            <li key={event.id}>
+              {event.title} - {moment(event.start).format("YYYY-MM-DD HH:mm")} ~{" "}
+              {moment(event.end).format("YYYY-MM-DD HH:mm")}
+            </li>
+            <Button onClick={() => handleDeleteEvent(event)}>削除</Button>
+          </>
+        ))}
+      </ul>
     </div>
   );
 };
