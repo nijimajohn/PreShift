@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { Calendar, DateFormatFunction, DateRangeFormatFunction, dateFnsLocalizer, momentLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
 import ja from "date-fns/locale/ja";
 import parse from "date-fns/parse";
@@ -11,6 +11,10 @@ import getDay from "date-fns/getDay";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
+import { Button, TextField } from "@mui/material";
+import moment, { locales } from 'moment';
+import 'moment/locale/ja';
+
 
 interface AllEvents {
   title: string;
@@ -19,64 +23,70 @@ interface AllEvents {
   end: Date;
 }
 
-const locales = {
-  ja: require("date-fns/locale/ja"),
+type Formats = {
+  dateFormat: string;
+  dayFormat: DateFormatFunction;
+  monthHeaderFormat: DateFormatFunction;
+  dayHeaderFormat: DateFormatFunction;
+  dayRangeHeaderFormat: DateRangeFormatFunction;
 };
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
+
+const localizer = momentLocalizer(moment);
+
+
+
+
+const formats: any = {
+  dateFormat: 'D',
+  dayFormat: (date: Date, culture: string, localizer: any) =>
+    localizer.format(date, 'D(ddd)'),
+  monthHeaderFormat: (date: Date, culture: string, localizer: any) =>
+    localizer.format(date, 'YYYY年M月'),
+  dayHeaderFormat: (date: Date, culture: string, localizer: any) =>
+    localizer.format(date, 'M月D日(ddd)'),
+  dayRangeHeaderFormat: ({start, end},culture: string, localizer: any) =>
+    `${localizer.format(start, 'YYYY年M月')} - ${localizer.format(end, 'YYYY年M月')}`,
+}
 
 const events = [
   {
     title: "MTG",
     allDay: true,
-    start: new Date(2021, 10, 18),
-    end: new Date(2021, 10, 18),
-  },
-  {
-    title: "長期休暇",
-    allDay: true,
-    start: new Date(2021, 10, 19),
-    end: new Date(2021, 10, 25),
-  },
-  {
-    title: "出張",
-    allDay: true,
-    start: new Date(2021, 10, 26),
-    end: new Date(2021, 10, 30),
+    start: new Date(2023, 7, 18),
+    end: new Date(2023, 7, 19),
   },
 ];
 
 const CalenderItem = () => {
-  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
-  const [allEvents, setAllEvents] = useState<any>(events);
+  const [date, setDate] = useState("");
+  const [shiftDate, setShiftDate] = useState("");
+  const [ allEvents, setAllEvents ] = useState(events)
 
-  const handleAddEvent = () => {
-    setAllEvents([...allEvents, newEvent]);
+  console.log(date);
+
+  const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setDate(e.target.value);
   };
+
+ 
 
   return (
     <div className="App">
-      <input
-        type="text"
-        placeholder="タイトル"
-        style={{ width: "20%", marginRight: "10px" }}
-        value={newEvent.title}
-        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-      />
-      <button onClick={() => {handleAddEvent()}}>test</button>
+      <form>
+        <TextField type="date" value={date} onChange={onChangeDate} />
+        <Button variant="outlined"  >提出</Button>
+      </form>
+  
       <Calendar
         localizer={localizer}
-        events={events}
+        events={allEvents}
         startAccessor="start"
         endAccessor="end"
+        showMultiDayTimes
+        views={['month','week', 'day']}
+        formats={formats}
         style={{ height: 500, margin: "50px" }}
       />
-      
     </div>
   );
 };
