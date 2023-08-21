@@ -40,7 +40,7 @@ const formats: any = {
 const CalenderItem = () => {
   const [events, setEvents] = useState<AllEvents[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  
+
   const [newEvent, setNewEvent] = useState<AllEvents>({
     title: "",
     start: new Date(),
@@ -76,6 +76,18 @@ const CalenderItem = () => {
         views={["month", "week", "day"]}
         formats={formats}
         style={{ height: 500, margin: "50px" }}
+        eventPropGetter={(event, start, end, isSelected) => {
+          let newStyle = {
+            backgroundColor: "lightgreen",
+            color: "black",
+            borderRadius: "0px",
+            border: "none",
+          };
+          return {
+            className: "",
+            style: newStyle
+          }
+        }}
       />
       <Button variant="outlined" onClick={() => setShowAddForm(true)}>
         シフトを提出画面を開く
