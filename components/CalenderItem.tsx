@@ -31,9 +31,9 @@ const formats: any = {
     culture: string,
     localizer: any
   ) =>
-    `${localizer.format(start, "YYYY年M月")} - ${localizer.format(
+    `${localizer.format(start, "M月D日")} - ${localizer.format(
       end,
-      "YYYY年M月"
+      "M月D日"
     )}`,
 };
 
@@ -137,7 +137,7 @@ const CalenderItem = () => {
           <>
             <ListItem key={event.id}>
               {event.title} --- {moment(event.start).format("MM月DD日 HH時mm分")} ~{" "}
-              {moment(event.end).format("HH時mm分")}
+              {moment(event.end).format("MM月DD日HH時mm分")}
             </ListItem>
             <Button variant="outlined" color="error" onClick={() => handleDeleteEvent(event)}>削除</Button>
           </>
