@@ -5,7 +5,7 @@ import React from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
-import { Button, Dialog, TextField } from "@mui/material";
+import { Button, Dialog, ListItem, TextField } from "@mui/material";
 import moment from "moment";
 import "moment/locale/ja";
 
@@ -135,11 +135,11 @@ const CalenderItem = () => {
       <ul>
         {events.map((event) => (
           <>
-            <li key={event.id}>
-              {event.title} - {moment(event.start).format("YYYY-MM-DD HH:mm")} ~{" "}
-              {moment(event.end).format("YYYY-MM-DD HH:mm")}
-            </li>
-            <Button onClick={() => handleDeleteEvent(event)}>削除</Button>
+            <ListItem key={event.id}>
+              {event.title} --- {moment(event.start).format("MM月DD日 HH時mm分")} ~{" "}
+              {moment(event.end).format("HH時mm分")}
+            </ListItem>
+            <Button variant="outlined" color="error" onClick={() => handleDeleteEvent(event)}>削除</Button>
           </>
         ))}
       </ul>
